@@ -1,7 +1,7 @@
 <template>
   <v-container class="garden-grid">
     <v-card
-      v-for="(plot, index) in plots"
+      v-for="plot in plots"
       :key="plot.number"
       @click="selectPlot(plot.number)"
       @dragover.prevent
