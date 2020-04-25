@@ -2,14 +2,20 @@
   <v-container>
     <v-card>
       <v-card-text>
-        <h3>My seeds</h3>
+        <h3>My seeds {{ oop }}</h3>
 
-        <v-chip large draggable v-for="(seed, index) in mySeeds" :key="index">
+        <v-chip
+          v-if="finishedLoading"
+          large
+          draggable
+          @dragstart="pickupSeed($event, seed)"
+          v-for="(seed, index) in mySeeds"
+          :key="index"
+        >
           {{ seed.seedTypeName }}
         </v-chip>
-        <v-chip disabled v-for="herbType in herbTypes">{{
-          herbType.name
-        }}</v-chip>
+
+        <v-btn small @click="getSeed">Get some kinda seed</v-btn>
       </v-card-text>
     </v-card>
   </v-container>
@@ -23,11 +29,14 @@ export default {
   data() {
     return {
       mySeeds: [],
-      herbTypes: []
+      herbTypes: [],
+      oop: null,
+      finishedLoading: false
     };
   },
-  created() {
-    db.collection("items")
+  async created() {
+    await db
+      .collection("items")
       .where("itemType", "==", "seed")
       .where("userCuid", "==", "abcde")
       .get()
@@ -37,9 +46,28 @@ export default {
           seed.id = doc.id;
           this.mySeeds.push(seed);
         });
+
+        // db.collection("herbTypes")
+        //   .get()
+        //   .then(snapshot => {
+        //     snapshot.forEach(doc => {
+        //       let herbType = doc.data();
+        //       herbType.id = doc.id;
+        //       this.herbTypes.push(herbType);
+        //       console.log(herbType);
+        //     });
+
+        //     this.mySeeds.forEach(seed => {
+        //       const seedTypeName = this.herbTypes.find(herb => {
+        //         return herb.id === seed.typeCuid;
+        //       }).name;
+        //       seed.seedTypeName = seedTypeName;
+        //     });
+        //   });
       });
 
-    db.collection("herbTypes")
+    await db
+      .collection("herbTypes")
       .get()
       .then(snapshot => {
         snapshot.forEach(doc => {
@@ -48,14 +76,27 @@ export default {
           this.herbTypes.push(herbType);
         });
       });
+
+    this.mySeeds.forEach(seed => {
+      const seedTypeName = this.herbTypes.find(herb => {
+        return herb.id === seed.typeCuid;
+      }).name;
+      seed.seedTypeName = seedTypeName;
+    });
+
+    this.finishedLoading = true;
   },
-  updated() {
-    if (this.mySeeds.length > 0 && this.herbTypes.length > 0) {
-      this.mySeeds.forEach(seed => {
-        const seedTypeName = this.herbTypes.find(herb => {
-          return herb.id === seed.typeCuid;
-        }).name;
-        seed.seedTypeName = seedTypeName;
+  methods: {
+    pickupSeed(e, seedData) {
+      e.dataTransfer.dropEffect = "move";
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("seedData", JSON.stringify(seedData));
+    },
+    getSeed() {
+      db.collection("items").add({
+        itemType: "seed",
+        typeCuid: "jJMXMO7oNcwr6QbdXvOy",
+        userCuid: "abcde"
       });
     }
   }
