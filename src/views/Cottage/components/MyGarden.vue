@@ -58,6 +58,11 @@ export default {
         .then(console.log("Document successfully deleted!"))
         .catch(error => console.log("Error deleting document: ", error));
 
+      this.plots[this.plots.findIndex(plot => plot.number === plotNumber)] = {
+        number: plotNumber,
+        contains: null
+      };
+
       this.updatePlots();
     },
     dropSeed(e, plotNumber) {
