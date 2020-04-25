@@ -4,16 +4,18 @@
       <v-card-text>
         <h3>My seeds {{ oop }}</h3>
 
-        <v-chip
-          v-if="finishedLoading"
-          large
-          draggable
-          @dragstart="pickupSeed($event, seed)"
-          v-for="(seed, index) in mySeeds"
-          :key="index"
-        >
-          {{ seed.seedTypeName }}
-        </v-chip>
+        <ul v-if="finishedLoading">
+          <li v-for="(seed, index) in mySeeds" :key="index">
+            <v-chip
+              large
+              draggable
+              @dragstart="pickupSeed($event, seed)"
+              @emittedDrop="destroySeed(seedId)"
+            >
+              {{ seed.seedTypeName }}
+            </v-chip>
+          </li>
+        </ul>
 
         <v-btn small @click="getSeed">Get some kinda seed</v-btn>
       </v-card-text>
@@ -97,6 +99,12 @@ export default {
         itemType: "seed",
         typeCuid: "jJMXMO7oNcwr6QbdXvOy",
         userCuid: "abcde"
+      });
+    },
+    destroySeed(seedId) {
+      // not doin it
+      this.mySeeds = this.mySeeds.filter(seed => {
+        seed.id !== seedId;
       });
     }
   }
