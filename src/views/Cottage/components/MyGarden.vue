@@ -1,7 +1,7 @@
 <template>
   <v-container class="garden-grid">
     <v-card
-      v-for="(plot, index) in plots"
+      v-for="plot in plots"
       :key="plot.number"
       @click="selectPlot(plot.number)"
       @dragover.prevent
@@ -32,18 +32,33 @@
  * ...or like whatever. If you're on [16] and you press up, you're on [16-5]. If you press down, [16+5].
  * */
 import db from "@/firebase/init";
+import { store, mutations } from "../store";
 
 export default {
   name: "my-garden",
   data() {
     return {
-      plots: [],
-      herbTypes: [],
+      //   plots: [],
+      //   herbTypes: [],
       isLoaded: false
     };
   },
+  computed: {
+    plots: {
+      get() {
+        if (this.isLoaded) {
+          return store.plots;
+        }
+      },
+      set() {
+        console.log("plots set!");
+        mutations.updatePlots();
+      }
+    }
+  },
   async created() {
-    await this.updatePlots();
+    console.log("created!");
+    await mutations.updatePlots();
 
     this.isLoaded = true;
   },
@@ -63,7 +78,7 @@ export default {
         contains: null
       };
 
-      this.updatePlots();
+      mutations.updatePlots();
     },
     dropSeed(e, plotNumber) {
       const seedData = JSON.parse(e.dataTransfer.getData("seedData"));
@@ -84,77 +99,11 @@ export default {
 
       // if a plot (defined in the db or not) is overwritten (ie if something is dragged onto it), update the object instead of creating a new one...?
       // or just destroy the original since we're pulling this.plots
-      console.log("filtering plots");
       this.plots = this.plots.filter(plot => {
-        console.log(plot.number);
         return plot.number !== plotNumber;
       });
-      console.log("plots filtered");
 
-      this.updatePlots();
-    },
-    async updatePlots() {
-      await db
-        .collection("gardens")
-        .doc("u2fAtwrhZnGGHp8GYkLT")
-        .collection("plots")
-        .get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            // if plot id not already in data,
-            // push
-            // otherwise, update.
-            // TODO: this can be refactored, I can feel it. Something about set plot[id] = newPlot and then it'll create if it doesn't exist and update if it does.
-            let newPlot = doc.data();
-            newPlot.id = doc.id;
-            if (this.plots.find(plot => plot.id === newPlot.id)) {
-              this.plots[
-                this.plots.findIndex(plot => plot.id === newPlot.id)
-              ] = newPlot;
-            } else {
-              this.plots.push(newPlot);
-            }
-          });
-        });
-
-      await db
-        .collection("herbTypes")
-        .get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            let herbType = doc.data();
-            herbType.id = doc.id;
-            this.herbTypes.push(herbType);
-          });
-        });
-
-      // give the plot object data about what herbType is growing in the plot so it's easily accessible
-      this.plots.forEach(plot => {
-        let growing = this.herbTypes.find(herb => {
-          return herb.id === plot.contains;
-        });
-        plot.growing = growing;
-      });
-
-      this.organizePlots();
-
-      console.log("plots: ", this.plots);
-      console.log("herbTypes: ", this.herbTypes);
-    },
-    organizePlots() {
-      // create plot objects for empty plots so it's easier to squish the data around
-      // then sort the plots (otherwise all the defined ones are at the start, out of order)
-      for (let i = 0; i < 25; i++) {
-        if (!this.plots.find(plot => plot.number === i)) {
-          this.plots.push({ number: i, contains: null });
-        }
-      }
-      this.plots.sort((a, b) => {
-        return a.number > b.number;
-      });
-    },
-    async updateSeeds() {
-      //
+      mutations.updatePlots();
     }
   }
 };
