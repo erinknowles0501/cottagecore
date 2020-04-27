@@ -10,8 +10,26 @@
 				<v-btn color="red" text to="/town">town</v-btn>
 				<v-btn color="red" text to="/city">city</v-btn>
 				<v-btn color="red" text to="/wilds">wilds</v-btn>
-				<v-btn color="red" outlined to="/user/abcde">erin</v-btn>
-				<v-btn color="primary" text @click="logout">logout</v-btn>
+				<v-btn
+					v-if="currentUser"
+					color="red"
+					outlined
+					:to="`/user/${currentUser.uid}`"
+					>{{ currentUser.displayName }}</v-btn
+				>
+				<v-btn color="primary" v-if="currentUser" text @click="logout"
+					>logout</v-btn
+				>
+				<v-btn color="accent" v-if="!currentUser" text @click="logout"
+					>login</v-btn
+				>
+				<v-btn
+					color="accent"
+					v-if="!currentUser"
+					outlined
+					@click="logout"
+					>signup</v-btn
+				>
 			</v-row>
 		</v-app-bar>
 		<v-content>
@@ -26,6 +44,29 @@
 import firebase from "firebase";
 export default {
 	name: "App",
+	data() {
+		return {
+			//
+		};
+	},
+	computed: {
+		currentUser() {
+			let user = null;
+			firebase.auth().onAuthStateChanged(user => {
+				if (user) {
+					console.log(
+						"Current user uid: ",
+						firebase.auth().currentUser.uid
+					);
+					user = firebase.auth().currentUser;
+				} else {
+					user = null;
+				}
+			});
+			console.log("User changed! ", user);
+			return user;
+		}
+	},
 	methods: {
 		logout() {
 			firebase

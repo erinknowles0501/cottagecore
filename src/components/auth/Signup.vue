@@ -109,6 +109,11 @@ export default {
 			successes: ""
 		};
 	},
+	// created() {
+	// 	if (firebase.auth().currentUser) {
+	// 		this.$router.push({ name: "Home" });
+	// 	}
+	// },
 	methods: {
 		formSubmit() {
 			console.log(this.email, this.password, this.alias);

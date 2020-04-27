@@ -70,6 +70,11 @@ export default {
 			}
 		};
 	},
+	// created() {
+	// 	if (firebase.auth().currentUser) {
+	// 		this.$router.push({ name: "Home" });
+	// 	}
+	// },
 	methods: {
 		login() {
 			console.log(this.emailUsername, this.password);
