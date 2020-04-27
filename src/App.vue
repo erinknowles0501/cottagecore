@@ -1,29 +1,41 @@
 <template>
-  <v-app>
-    <v-app-bar app color="secondary">
-      <v-btn color="purple" class="brand" x-large text to="/"
-        >cottagecore</v-btn
-      >
-      <v-spacer></v-spacer>
-      <v-row justify="end">
-        <v-btn color="red" text to="/cottage">my cottage</v-btn>
-        <v-btn color="red" text to="/town">town</v-btn>
-        <v-btn color="red" text to="/city">city</v-btn>
-        <v-btn color="red" text to="/wilds">wilds</v-btn>
-        <v-btn color="red" outlined to="/user/abcde">erin</v-btn>
-      </v-row>
-    </v-app-bar>
-    <v-content>
-      <v-container fluid>
-        <router-view />
-      </v-container>
-    </v-content>
-  </v-app>
+	<v-app>
+		<v-app-bar app color="secondary">
+			<v-btn color="purple" class="brand" x-large text to="/">
+				cottagecore
+			</v-btn>
+			<v-spacer></v-spacer>
+			<v-row justify="end">
+				<v-btn color="red" text to="/cottage">my cottage</v-btn>
+				<v-btn color="red" text to="/town">town</v-btn>
+				<v-btn color="red" text to="/city">city</v-btn>
+				<v-btn color="red" text to="/wilds">wilds</v-btn>
+				<v-btn color="red" outlined to="/user/abcde">erin</v-btn>
+				<v-btn color="primary" text @click="logout">logout</v-btn>
+			</v-row>
+		</v-app-bar>
+		<v-content>
+			<v-container fluid>
+				<router-view />
+			</v-container>
+		</v-content>
+	</v-app>
 </template>
 
 <script>
+import firebase from "firebase";
 export default {
-  name: "App"
+	name: "App",
+	methods: {
+		logout() {
+			firebase
+				.auth()
+				.signOut()
+				.then(() => {
+					this.$router.push({ name: "Login" });
+				});
+		}
+	}
 };
 </script>
 
@@ -38,9 +50,9 @@ export default {
 } */
 
 .brand {
-  font-family: "caveat", sans-serif;
-  font-weight: 800 !important;
-  font-size: 2em !important;
-  text-transform: lowercase !important;
+	font-family: "caveat", sans-serif;
+	font-weight: 800 !important;
+	font-size: 2em !important;
+	text-transform: lowercase !important;
 }
 </style>

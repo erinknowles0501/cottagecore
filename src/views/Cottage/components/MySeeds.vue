@@ -10,7 +10,7 @@
               large
               draggable
               @dragstart="pickupSeed($event, seed)"
-              @emittedDrop="destroySeed(seedId)"
+              @emittedDrop="destroySeed(seed.seedId)"
             >
               {{ seed.seedTypeName }}
             </v-chip>
