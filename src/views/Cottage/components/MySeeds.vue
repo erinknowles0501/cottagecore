@@ -14,15 +14,13 @@
         >
           {{ seed.seedTypeName }}
         </v-chip>
-
-        <v-btn small @click="getSeed">Get some kinda seed</v-btn>
       </v-card-text>
     </v-card>
   </v-container>
 </template>
 
 <script>
-import db from "@/firebase/init";
+// import db from "@/firebase/init";
 import {
   gardenStore as store,
   getGardenData as getData,
@@ -48,13 +46,6 @@ export default {
       e.dataTransfer.dropEffect = "move";
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("seedData", JSON.stringify(seedData));
-    },
-    getSeed() {
-      db.collection("items").add({
-        itemType: "seed",
-        typeCuid: "jJMXMO7oNcwr6QbdXvOy",
-        userCuid: "abcde"
-      });
     }
   }
 };

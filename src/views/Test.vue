@@ -1,6 +1,7 @@
 <template>
   <div>
-    <pre>{{ plots }}</pre>
+    <pre>{{ helloWorld }}</pre>
+    <v-btn @click="updateMsg">Update</v-btn>
   </div>
 </template>
 
@@ -8,20 +9,29 @@
 import {
   gardenStore as store,
   getGardenData as getData,
-  gardenMutations as mutations
+  gardenMutations as mutations,
+  gardenActions as actions
 } from "@/store/gardenStore";
 
 export default {
   data() {
     return {
       mySeeds: [],
-      plots: []
+      plots: [],
+      helloWorld: ""
     };
   },
   async created() {
     await getData();
     this.mySeeds = store.mySeeds;
     this.plots = store.plots;
+    this.helloWorld = store.helloWorld;
+  },
+  methods: {
+    updateMsg() {
+      actions.updateMsg();
+      this.helloWorld = store.helloWorld;
+    }
   }
 };
 </script>

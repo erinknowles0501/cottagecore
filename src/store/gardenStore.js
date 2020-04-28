@@ -16,6 +16,7 @@
  */
 
 import db from "@/firebase/init";
+import { store } from "./index_BAK";
 // import { store } from "./index_BAK";
 // TODO- create user store, instead of just pulling
 // directly wherewhere it's needed
@@ -46,14 +47,13 @@ export async function getGardenData() {
         tempHerbTypes.push(herbType);
       });
       gardenStore.herbTypes = tempHerbTypes;
-      console.log("herbtypes: ", gardenStore.herbTypes);
     });
 
   // get plots
   // TODO: get current user's garden, not just abcde's garden
   await db
     .collection("plots")
-    .where("userUid", "==", "IYAruWWxHGSLoA0sTC3WHSUPq5r2")
+    .where("userCuid", "==", "IYAruWWxHGSLoA0sTC3WHSUPq5r2")
     .get()
     .then(snapshot => {
       let tempPlots = [];
@@ -63,7 +63,6 @@ export async function getGardenData() {
         tempPlots.push(plot);
       });
       gardenStore.plots = tempPlots;
-      console.log("plots: ", gardenStore.plots);
     });
 
   // get my seeds.
@@ -81,17 +80,15 @@ export async function getGardenData() {
         tempSeeds.push(seed);
       });
       gardenStore.mySeeds = tempSeeds;
-      console.log("Seeds: ", gardenStore.mySeeds);
     });
 
-  // give the plot object data about what herbType is growing in the plot so it's easily accessible    store.plots.forEach(plot => {
+  // give the plot object data about what herbType is growing in the plot
+  // (if there is anything growing in that plot) so it's easily accessible    store.plots.forEach(plot => {
   gardenStore.plots.forEach(plot => {
-    let growing = gardenStore.herbTypes.find(herb => {
-      return herb.id === plot.contains;
-    });
-    plot.growing = growing;
+    if (plot.contains) {
+      gardenActions.getGrowingData(plot);
+    }
   });
-  console.log("gardenStore data added plots: ", gardenStore.plots);
 
   // populate empty plots and sort them to make data easier to use
   for (let i = 0; i < 25; i++) {
@@ -102,7 +99,6 @@ export async function getGardenData() {
   gardenStore.plots.sort((a, b) => {
     return a.number > b.number;
   });
-  console.log("gardenstore organized plots: ", gardenStore.plots);
 
   // give seed items info about their seed type:
   gardenStore.mySeeds.forEach(seed => {
@@ -112,6 +108,24 @@ export async function getGardenData() {
     seed.seedTypeName = seedTypeName;
   });
 }
+
+export const gardenActions = {
+  getGrowingData(plot) {
+    // give the plot object data about what herbType is growing in the plot so it's easily accessible    store.plots.forEach(plot => {
+
+    let growing = gardenStore.herbTypes.find(herb => {
+      return herb.id === plot.contains;
+    });
+    let gardenStorePlot = gardenStore.plots.find(
+      storePlot => storePlot.number === plot.number
+    );
+
+    gardenStorePlot.growing = growing;
+  },
+  updateMsg() {
+    gardenStore.helloWorld = "Bananas";
+  }
+};
 
 export const gardenMutations = {
   // this is where you update the actual database.
@@ -133,5 +147,28 @@ export const gardenMutations = {
     // update existing plot ('update', number, new data)
     // delete plot ('delete', number)
     // data should contain: number=0-24, contains=herbType uid
+    switch (action) {
+      case "create":
+        db.collection("plots")
+          .add({
+            userCuid: "IYAruWWxHGSLoA0sTC3WHSUPq5r2",
+            number: number,
+            contains: data
+          })
+          .then(function() {
+            console.log("Document successfully written!");
+          })
+          .catch(function(error) {
+            console.error("Error writing document: ", error);
+          });
+        break;
+
+      case "delete":
+        db.collection("plots")
+          .doc(data)
+          .delete()
+          .catch(error => console.log("Error deleting document: ", error));
+        break;
+    }
   }
 };

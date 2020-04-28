@@ -3,9 +3,8 @@
     <v-card
       v-for="plot in plots"
       :key="plot.number"
-      @click="selectPlot(plot.number)"
       @dragover.prevent
-      @drop.prevent="dropSeed($event, plot.number)"
+      @drop.prevent="dropSeed($event, plot)"
     >
       <!-- v-if this plot has data, display that seed -->
       <!-- <p v-if="isLoaded && plots.find(plot => plot.number === index)"> -->
@@ -35,7 +34,8 @@ import db from "@/firebase/init";
 import {
   gardenStore as store,
   getGardenData as getData,
-  gardenMutations as mutations
+  gardenMutations as mutations,
+  gardenActions as actions
 } from "@/store/gardenStore";
 
 export default {
@@ -49,53 +49,57 @@ export default {
   },
   async created() {
     await getData();
+    // TODO: need to watch store to update local copies.
     this.mySeeds = store.mySeeds;
     this.plots = store.plots;
 
     this.isLoaded = true;
   },
   methods: {
-    async selectPlot(plotNumber) {
-      await db
-        .collection("gardens")
-        .doc("u2fAtwrhZnGGHp8GYkLT")
-        .collection("plots")
-        .doc(plotNumber + "")
-        .delete()
-        .then(console.log("Document successfully deleted!"))
-        .catch(error => console.log("Error deleting document: ", error));
-
-      this.plots[this.plots.findIndex(plot => plot.number === plotNumber)] = {
-        number: plotNumber,
-        contains: null
-      };
-
-      mutations.updatePlots();
-    },
-    dropSeed(e, plotNumber) {
+    dropSeed(e, plot) {
       const seedData = JSON.parse(e.dataTransfer.getData("seedData"));
-      db.collection("gardens")
-        .doc("u2fAtwrhZnGGHp8GYkLT")
-        .collection("plots")
-        .doc(plotNumber + "")
-        .set({
-          number: plotNumber,
-          contains: seedData.typeCuid
-        })
-        .then(function() {
-          console.log("Document successfully written!");
-        })
-        .catch(function(error) {
-          console.error("Error writing document: ", error);
+
+      // only plant seed in empty plot
+      if (!plot.contains) {
+        // update db
+        mutations.mutatePlots("create", plot.number, seedData.typeCuid);
+
+        // update store with plot.contains
+        store.plots = store.plots.map(mapPlot => {
+          if (mapPlot.number === plot.number) {
+            plot.contains = seedData.typeCuid;
+          }
+          return mapPlot;
         });
+
+        // update store with growing info
+        actions.getGrowingData(plot);
+
+        // update local with data from store
+        // (must splice and replace because of specific array updating thing with v-for)
+        // this.plots[plot.number] = store.plots[plot.number];
+        this.plots.splice(plot.number, 1, store.plots[plot.number]);
+      }
+
+      // db.collection("gardens")
+      //   .doc("u2fAtwrhZnGGHp8GYkLT")
+      //   .collection("plots")
+      //   .doc(plotNumber + "")
+      //   .set({
+      //     number: plotNumber,
+      //     contains: seedData.typeCuid
+      //   })
+      //   .then(function() {
+      //     console.log("Document successfully written!");
+      //   })
+      //   .catch(function(error) {
+      //     console.error("Error writing document: ", error);
+      //   });
 
       // if a plot (defined in the db or not) is overwritten (ie if something is dragged onto it), update the object instead of creating a new one...?
       // or just destroy the original since we're pulling this.plots
-      this.plots = this.plots.filter(plot => {
-        return plot.number !== plotNumber;
-      });
 
-      mutations.updatePlots();
+      //  mutations.updatePlots();
     }
   }
 };
