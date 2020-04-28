@@ -2,7 +2,7 @@
   <v-container>
     <v-card>
       <v-card-text>
-        <h3>My seeds {{ oop }}</h3>
+        <h3>My seeds</h3>
 
         <v-chip
           v-if="finishedLoading"
@@ -23,67 +23,24 @@
 
 <script>
 import db from "@/firebase/init";
+import {
+  gardenStore as store,
+  getGardenData as getData,
+  gardenMutations as mutations
+} from "@/store/gardenStore";
 
 export default {
   name: "my-seeds",
   data() {
     return {
       mySeeds: [],
-      herbTypes: [],
-      oop: null,
       finishedLoading: false
     };
   },
   async created() {
-    await db
-      .collection("items")
-      .where("itemType", "==", "seed")
-      .where("userCuid", "==", "abcde")
-      .get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          let seed = doc.data();
-          seed.id = doc.id;
-          this.mySeeds.push(seed);
-        });
-
-        // db.collection("herbTypes")
-        //   .get()
-        //   .then(snapshot => {
-        //     snapshot.forEach(doc => {
-        //       let herbType = doc.data();
-        //       herbType.id = doc.id;
-        //       this.herbTypes.push(herbType);
-        //       console.log(herbType);
-        //     });
-
-        //     this.mySeeds.forEach(seed => {
-        //       const seedTypeName = this.herbTypes.find(herb => {
-        //         return herb.id === seed.typeCuid;
-        //       }).name;
-        //       seed.seedTypeName = seedTypeName;
-        //     });
-        //   });
-      });
-
-    await db
-      .collection("herbTypes")
-      .get()
-      .then(snapshot => {
-        snapshot.forEach(doc => {
-          let herbType = doc.data();
-          herbType.id = doc.id;
-          this.herbTypes.push(herbType);
-        });
-      });
-
-    this.mySeeds.forEach(seed => {
-      const seedTypeName = this.herbTypes.find(herb => {
-        return herb.id === seed.typeCuid;
-      }).name;
-      seed.seedTypeName = seedTypeName;
-    });
-
+    await getData();
+    this.mySeeds = store.mySeeds;
+    console.log("local myseeds: ", this.mySeeds);
     this.finishedLoading = true;
   },
   methods: {

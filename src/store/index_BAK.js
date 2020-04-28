@@ -74,3 +74,15 @@ export const mutations = {
     //
   }
 };
+
+export const actions = {
+  /* okay so the flow of data should look like:
+   * get data from firebase via action on created() in page so it runs whenever page is reloaded
+   * use mutation(?) to set store
+   * on page - get data from store
+   * when something is changed, update local data so we can see changes instantly.
+   * Watch local data and perform update in bg when it changes as applicable
+   *
+   *
+   */
+};

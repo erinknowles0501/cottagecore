@@ -32,33 +32,25 @@
  * ...or like whatever. If you're on [16] and you press up, you're on [16-5]. If you press down, [16+5].
  * */
 import db from "@/firebase/init";
-import { store, mutations } from "../store";
+import {
+  gardenStore as store,
+  getGardenData as getData,
+  gardenMutations as mutations
+} from "@/store/gardenStore";
 
 export default {
   name: "my-garden",
   data() {
     return {
-      //   plots: [],
-      //   herbTypes: [],
+      plots: [],
+      mySeeds: [],
       isLoaded: false
     };
   },
-  computed: {
-    plots: {
-      get() {
-        if (this.isLoaded) {
-          return store.plots;
-        }
-      },
-      set() {
-        console.log("plots set!");
-        mutations.updatePlots();
-      }
-    }
-  },
   async created() {
-    console.log("created!");
-    await mutations.updatePlots();
+    await getData();
+    this.mySeeds = store.mySeeds;
+    this.plots = store.plots;
 
     this.isLoaded = true;
   },
