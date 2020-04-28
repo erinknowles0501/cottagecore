@@ -79,6 +79,10 @@ export default {
         // (must splice and replace because of specific array updating thing with v-for)
         // this.plots[plot.number] = store.plots[plot.number];
         this.plots.splice(plot.number, 1, store.plots[plot.number]);
+
+        // emit drop so the seed can destroy
+        // TODO: not getting emitted because they're siblings I assume. Maybe a bus? Maybe something better?
+        this.$emit("emittedDrop");
       }
 
       // db.collection("gardens")

@@ -149,7 +149,7 @@ export const gardenMutations = {
       case "create":
         db.collection("plots")
           .add({
-            userCuid: "IYAruWWxHGSLoA0sTC3WHSUPq5r2",
+            userCuid: firebase.auth().currentUser.uid,
             number: number,
             contains: data
           })
