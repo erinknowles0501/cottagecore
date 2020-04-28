@@ -20,8 +20,7 @@ import { store } from "./index_BAK";
 // import { store } from "./index_BAK";
 // TODO- create user store, instead of just pulling
 // directly wherewhere it's needed
-// import firebase from 'firebase';
-// const userUid = firebase.auth().currentUser.uid;
+import firebase from "firebase";
 
 export const gardenStore = {
   herbTypes: [],
@@ -50,10 +49,10 @@ export async function getGardenData() {
     });
 
   // get plots
-  // TODO: get current user's garden, not just abcde's garden
+  const userUid = firebase.auth().currentUser.uid;
   await db
     .collection("plots")
-    .where("userCuid", "==", "IYAruWWxHGSLoA0sTC3WHSUPq5r2")
+    .where("userCuid", "==", userUid)
     .get()
     .then(snapshot => {
       let tempPlots = [];
@@ -65,12 +64,11 @@ export async function getGardenData() {
       gardenStore.plots = tempPlots;
     });
 
-  // get my seeds.
-  // TODO: get user's seeds
+  // get user's seeds.
   await db
     .collection("items")
     .where("itemType", "==", "seed")
-    .where("userCuid", "==", "IYAruWWxHGSLoA0sTC3WHSUPq5r2")
+    .where("userCuid", "==", userUid)
     .get()
     .then(snapshot => {
       let tempSeeds = [];
