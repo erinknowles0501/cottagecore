@@ -11,23 +11,19 @@
 				<v-btn color="red" text to="/city">city</v-btn>
 				<v-btn color="red" text to="/wilds">wilds</v-btn>
 				<v-btn
-					v-if="currentUser"
+					v-if="user"
 					color="red"
 					outlined
-					:to="`/user/${currentUser.uid}`"
-					>{{ currentUser.displayName }}</v-btn
+					:to="`/user/${user.uid}`"
+					>{{ user.displayName }}</v-btn
 				>
-				<v-btn color="primary" v-if="currentUser" text @click="logout"
+				<v-btn color="primary" v-if="user" text @click="logout"
 					>logout</v-btn
 				>
-				<v-btn color="accent" v-if="!currentUser" text @click="logout"
+				<v-btn color="accent" v-if="!user" text @click="logout"
 					>login</v-btn
 				>
-				<v-btn
-					color="accent"
-					v-if="!currentUser"
-					outlined
-					@click="logout"
+				<v-btn color="accent" v-if="!user" outlined @click="logout"
 					>signup</v-btn
 				>
 			</v-row>
@@ -46,27 +42,40 @@ export default {
 	name: "App",
 	data() {
 		return {
-			//
+			user: null
 		};
 	},
-	computed: {
-		currentUser() {
-			let user = null;
-			firebase.auth().onAuthStateChanged(user => {
-				if (user) {
-					console.log(
-						"Current user uid: ",
-						firebase.auth().currentUser.uid
-					);
-					user = firebase.auth().currentUser;
-				} else {
-					user = null;
-				}
-			});
-			console.log("User changed! ", user);
-			return user;
-		}
+	created() {
+		firebase.auth().onAuthStateChanged(user => {
+			if (user) {
+				console.log(
+					"Current user uid: ",
+					firebase.auth().currentUser.uid
+				);
+				this.user = firebase.auth().currentUser;
+			} else {
+				this.user = null;
+			}
+		});
 	},
+	// computed: {
+	// 	currentUser() {
+	// 		let tempUser = null;
+	// 		firebase.auth().onAuthStateChanged(user => {
+	// 			if (user) {
+	// 				console.log(
+	// 					"Current user uid: ",
+	// 					firebase.auth().currentUser.uid
+	// 				);
+	// 				tempUser = firebase.auth().currentUser;
+	// 			} else {
+	// 				tempUser = null;
+	// 			}
+	// 		});
+	// 		console.log("User changed! ", tempUser);
+	// 		return tempUser;
+	// 	}
+	// },
 	methods: {
 		logout() {
 			firebase
