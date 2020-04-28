@@ -116,24 +116,27 @@ export default {
 	// },
 	methods: {
 		formSubmit() {
-			console.log(this.email, this.password, this.alias);
+			console.log(this.email, this.password, this.username);
 			if (this.valid) {
 				firebase
 					.auth()
 					.createUserWithEmailAndPassword(this.email, this.password)
 					.then(cred => {
-						db.collection("users")
-							.doc(this.username)
-							.set({
-								username: this.username,
-								userUid: cred.user.uid
-							})
-							.then(
-								this.$router.push({
-									name: "User",
-									params: { userId: cred.user.uid }
-								})
-							);
+						// db.collection("users")
+						// 	.doc(this.username)
+						// 	.set({
+						// 		username: this.username,
+						// 		userUid: cred.user.uid
+						// 	})
+
+						// 	);
+						cred.user.updateProfile({
+							displayName: this.username
+						});
+						this.$router.push({
+							name: "User",
+							params: { userId: cred.user.uid }
+						});
 					})
 					.catch(error => console.log("Error: ", error));
 			}

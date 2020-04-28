@@ -6,10 +6,12 @@
 			</v-btn>
 			<v-spacer></v-spacer>
 			<v-row justify="end">
-				<v-btn color="red" text to="/cottage">my cottage</v-btn>
-				<v-btn color="red" text to="/town">town</v-btn>
-				<v-btn color="red" text to="/city">city</v-btn>
-				<v-btn color="red" text to="/wilds">wilds</v-btn>
+				<v-btn color="red" text :to="{ name: 'Cottage' }"
+					>my cottage</v-btn
+				>
+				<v-btn color="red" text :to="{ name: 'Town' }">town</v-btn>
+				<v-btn color="red" text :to="{ name: 'City' }">city</v-btn>
+				<v-btn color="red" text :to="{ name: 'Wilds' }">wilds</v-btn>
 				<v-btn
 					v-if="user"
 					color="red"
@@ -20,10 +22,14 @@
 				<v-btn color="primary" v-if="user" text @click="logout"
 					>logout</v-btn
 				>
-				<v-btn color="accent" v-if="!user" text @click="logout"
+				<v-btn color="accent" v-if="!user" text :to="{ name: 'Login' }"
 					>login</v-btn
 				>
-				<v-btn color="accent" v-if="!user" outlined @click="logout"
+				<v-btn
+					color="accent"
+					v-if="!user"
+					outlined
+					:to="{ name: 'Signup' }"
 					>signup</v-btn
 				>
 			</v-row>
