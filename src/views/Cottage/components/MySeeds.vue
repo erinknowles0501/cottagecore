@@ -4,16 +4,18 @@
       <v-card-text>
         <h3>My seeds</h3>
 
-        <v-chip
-          v-if="finishedLoading"
-          large
-          draggable
-          @dragstart="pickupSeed($event, seed)"
-          v-for="(seed, index) in mySeeds"
-          :key="index"
-        >
-          {{ seed.seedTypeName }}
-        </v-chip>
+        <ul v-if="finishedLoading">
+          <li v-for="(seed, index) in mySeeds" :key="index">
+            <v-chip
+              large
+              draggable
+              @dragstart="pickupSeed($event, seed)"
+              @emittedDrop="destroySeed(seed.seedId)"
+            >
+              {{ seed.seedTypeName }}
+            </v-chip>
+          </li>
+        </ul>
       </v-card-text>
     </v-card>
   </v-container>
@@ -46,6 +48,13 @@ export default {
       e.dataTransfer.dropEffect = "move";
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("seedData", JSON.stringify(seedData));
+    },
+    destroySeed(seedId) {
+      // not doin it
+      // TODO: destroy from db.items with mutation.
+      this.mySeeds = this.mySeeds.filter(seed => {
+        seed.id !== seedId;
+      });
     }
   }
 };
