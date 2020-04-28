@@ -21,34 +21,34 @@ const router = new Router({
 		{
 			path: "/cottage",
 			name: "Cottage",
-			component: Cottage,
-			meta: {
-				requiresAuth: true
-			}
+			component: Cottage
+			// meta: {
+			// 	requiresAuth: true
+			// }
 		},
 		{
 			path: "/user/:userId",
 			name: "User",
-			component: User,
-			meta: {
-				requiresAuth: true
-			}
+			component: User
+			// meta: {
+			// 	requiresAuth: true
+			// }
 		},
 		{
 			path: "/signup",
 			name: "Signup",
-			component: Signup,
-			meta: {
-				loggedInRedirect: true
-			}
+			component: Signup
+			// meta: {
+			// 	loggedInRedirect: true
+			// }
 		},
 		{
 			path: "/login",
 			name: "Login",
-			component: Login,
-			meta: {
-				loggedInRedirect: true
-			}
+			component: Login
+			// meta: {
+			// 	loggedInRedirect: true
+			// }
 		}
 	]
 });
@@ -57,22 +57,24 @@ const router = new Router({
 // Also check for loggedInRedirect (ie if a logged-in user tries to go to Sign Up page)
 let user = firebase.auth().currentUser;
 
-router.beforeEach((to, from, next) => {
-	if (to.matched.some(rec => rec.meta.requiresAuth)) {
-		if (user) {
-			next();
-		} else {
-			next({ name: "Login" });
-		}
-	} else if (to.matched.some(rec => rec.meta.loggedInRedirect)) {
-		if (user) {
-			next({ name: "Home" });
-		} else {
-			next();
-		}
-	} else {
-		next();
-	}
-});
+// something fucky with this:
+
+// router.beforeEach((to, from, next) => {
+// 	if (to.matched.some(rec => rec.meta.requiresAuth)) {
+// 		if (user) {
+// 			next();
+// 		} else {
+// 			next({ name: "Login" });
+// 		}
+// 	} else if (to.matched.some(rec => rec.meta.loggedInRedirect)) {
+// 		if (user) {
+// 			next({ name: "Home" });
+// 		} else {
+// 			next();
+// 		}
+// 	} else {
+// 		next();
+// 	}
+// });
 
 export default router;
