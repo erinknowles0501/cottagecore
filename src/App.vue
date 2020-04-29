@@ -16,8 +16,8 @@
 					v-if="user"
 					color="red"
 					outlined
-					:to="`/user/${user.uid}`"
-					>{{ user.displayName }}</v-btn
+					:to="`/user/${user.userUid}`"
+					>{{ user.username }}</v-btn
 				>
 				<v-btn color="primary" v-if="user" text @click="logout"
 					>logout</v-btn
@@ -43,7 +43,9 @@
 </template>
 
 <script>
+import db from "@/firebase/init";
 import firebase from "firebase";
+
 export default {
 	name: "App",
 	data() {
@@ -54,11 +56,17 @@ export default {
 	created() {
 		firebase.auth().onAuthStateChanged(user => {
 			if (user) {
-				console.log(
-					"Current user uid: ",
-					firebase.auth().currentUser.uid
-				);
-				this.user = firebase.auth().currentUser;
+				db.collection("users")
+					.doc(user.uid)
+					.get()
+					.then(doc => (this.user = doc.data()))
+					.catch(error =>
+						console.log(
+							"Error getting user from current user uid: ",
+							error
+						)
+					);
+				//	this.user = firebase.auth().currentUser;
 			} else {
 				this.user = null;
 			}

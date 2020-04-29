@@ -65,21 +65,14 @@ export default {
 			}
 		};
 	},
-	// created() {
-	// 	if (firebase.auth().currentUser) {
-	// 		this.$router.push({ name: "Home" });
-	// 	}
-	// },
 	methods: {
 		login() {
-			console.log(this.emailUsername, this.password);
 			if (this.emailUsername && this.password) {
 				// determine whether entered info is an email address or a username with ~.~.~regex~.~.~
 				// rules.emailUsernameRules determines validity of one or other so we don't have to check validity here
 				let infoType = /^[a-z0-9-]+$/i.test(this.emailUsername)
 					? "username"
 					: "email";
-				console.log(infoType);
 
 				if (infoType === "email") {
 					firebase
@@ -89,13 +82,33 @@ export default {
 							this.password
 						)
 						.then(cred => {
-							console.log(cred.user);
 							this.$router.push({ name: "Home" });
 						})
 						.catch(error => {
-							console.log("error: ", error);
+							console.log("error signing in with email: ", error);
 							this.submitError = error;
 						});
+				} else {
+					db.collection("users")
+						.where("username", "==", this.emailUsername)
+						.get()
+						.then(snapshot => {
+							snapshot.forEach(doc => {
+								firebase
+									.auth()
+									.signInWithEmailAndPassword(
+										doc.data().email,
+										this.password
+									);
+							});
+							this.$router.push({ name: "Home" });
+						})
+						.catch(error =>
+							console.log(
+								"Error signing in with username! ",
+								error
+							)
+						);
 				}
 			}
 		}
