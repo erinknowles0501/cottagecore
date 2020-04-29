@@ -3,6 +3,7 @@ import Router from "vue-router";
 
 import Home from "@/views/Home";
 import Cottage from "@/views/Cottage/Cottage";
+import Town from "@/views/Town";
 import User from "@/views/User";
 import Signup from "@/components/auth/Signup";
 import Login from "@/components/auth/Login";
@@ -22,6 +23,14 @@ const router = new Router({
 			path: "/cottage",
 			name: "Cottage",
 			component: Cottage,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: "/town",
+			name: "Town",
+			component: Town,
 			meta: {
 				requiresAuth: true
 			}
