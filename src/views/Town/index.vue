@@ -1,7 +1,7 @@
 <template>
 	<v-container>
 		<h3>Town</h3>
-		<v-card>
+		<v-card v-if="!!myCoven && myCoven.length !== 0">
 			<v-card-title>{{ myCoven.name }}</v-card-title>
 			<v-card-subtitle>{{ myCoven.type }}</v-card-subtitle>
 			<v-card-text>
@@ -13,6 +13,10 @@
 				</div>
 			</v-card-text>
 		</v-card>
+		<v-card v-else>
+			<v-card-title>You're not a member of any coven!</v-card-title>
+			<v-card-subtitle>It's dangerous to go alone...</v-card-subtitle>
+		</v-card>
 	</v-container>
 </template>
 
@@ -22,14 +26,19 @@ import { store, getData } from "../../store/covenStore";
 export default {
 	data() {
 		return {
-			myCoven: null,
-			members: null
+			myCoven: [],
+			members: [],
 		};
 	},
-	async created() {
-		await getData();
-		this.myCoven = store.myCoven;
-		this.members = store.members;
-	}
+	created() {
+		this.initialize(); // unsafe to have async Vue lifestyle hooks
+	},
+	methods: {
+		async initialize() {
+			await getData();
+			this.myCoven = store.myCoven;
+			this.members = store.members;
+		},
+	},
 };
 </script>

@@ -52,25 +52,26 @@ export default {
 			submitError: false,
 			rules: {
 				emailUsernameRules: [
-					v => !!v || "Required. come on",
-					v =>
+					(v) => !!v || "Required. come on",
+					(v) =>
 						(!!v &&
 							(/^[a-z0-9-]+$/i.test(v) ||
 								/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(
 									v
 								))) ||
-						"Not a valid username or email address"
+						"Not a valid username or email address",
 				],
-				passwordRules: [v => !!v || "Required."]
-			}
+				passwordRules: [(v) => !!v || "Required."],
+			},
 		};
 	},
 	methods: {
-		login() {
+		async login() {
 			if (this.emailUsername && this.password) {
+				const vm = this; // preserve this for use in later arrow functions
 				// determine whether entered info is an email address or a username with ~.~.~regex~.~.~
 				// rules.emailUsernameRules determines validity of one or other so we don't have to check validity here
-				let infoType = /^[a-z0-9-]+$/i.test(this.emailUsername)
+				let infoType = /^[a-z0-9-]+$/i.test(vm.emailUsername)
 					? "username"
 					: "email";
 
@@ -78,32 +79,34 @@ export default {
 					firebase
 						.auth()
 						.signInWithEmailAndPassword(
-							this.emailUsername,
-							this.password
+							vm.emailUsername,
+							vm.password
 						)
-						.then(cred => {
-							this.$router.push({ name: "Home" });
+						.then((cred) => {
+							vm.$emit("login");
+							vm.$router.push({ name: "Home" });
 						})
-						.catch(error => {
+						.catch((error) => {
 							console.log("error signing in with email: ", error);
-							this.submitError = error;
+							vm.submitError = error;
 						});
 				} else {
 					db.collection("users")
-						.where("username", "==", this.emailUsername)
+						.where("username", "==", vm.emailUsername)
 						.get()
-						.then(snapshot => {
-							snapshot.forEach(doc => {
-								firebase
+						.then((snapshot) => {
+							snapshot.forEach(async (doc) => {
+								await firebase
 									.auth()
 									.signInWithEmailAndPassword(
 										doc.data().email,
-										this.password
+										vm.password
 									);
 							});
-							this.$router.push({ name: "Home" });
+							vm.$emit("login");
+							vm.$router.push({ name: "Home" });
 						})
-						.catch(error =>
+						.catch((error) =>
 							console.log(
 								"Error signing in with username! ",
 								error
@@ -111,8 +114,8 @@ export default {
 						);
 				}
 			}
-		}
-	}
+		},
+	},
 };
 </script>
 

@@ -22,7 +22,7 @@
 					:rules="passwordRules"
 					type="password"
 					label="Password"
-					hint="Minimum 10 characters"
+					hint="Minimum 6 characters"
 					v-model="password"
 				>
 				</v-text-field>
@@ -79,23 +79,24 @@ export default {
 			password: null,
 
 			passwordRules: [
-				v => !!v || "Password is required",
-				v =>
+				(v) => !!v || "Password is required",
+				(v) =>
 					(v && v.length >= 5) ||
-					"Password much be at least 5 characters"
+					"Password much be at least 6 characters",
 			],
 			emailRules: [
-				v => !!v || "E-mail is required",
-				v =>
+				(v) => !!v || "E-mail is required",
+				(v) =>
 					/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-					"E-mail is invalid"
+					"E-mail is invalid",
 			],
 			passwordConfirmRules: [
-				v => (v && v === this.password) || "Passwords do not match"
+				(v) => (v && v === this.password) || "Passwords do not match",
 			],
 			usernameRules: [
-				v => !!v || "A username is required.",
-				v => /^[a-z0-9-]+$/i.test(v) || "Alphanumeric and dashes only."
+				(v) => !!v || "A username is required.",
+				(v) =>
+					/^[a-z0-9-]+$/i.test(v) || "Alphanumeric and dashes only.",
 				// v =>
 				//   (!!v && !this.checkExists(v)) ||
 				//   "This username is already taken. Try adding dashes or different capitalization."
@@ -106,7 +107,7 @@ export default {
 			// should object these error and success messages but currently only usernameField uses them so
 			// when i say object i mean like errors: { usernameErrors: [], passwordErrors: [] } etc.
 			errors: "",
-			successes: ""
+			successes: "",
 		};
 	},
 	// created() {
@@ -120,30 +121,30 @@ export default {
 				firebase
 					.auth()
 					.createUserWithEmailAndPassword(this.email, this.password)
-					.then(cred => {
-						db.collection("users")
-							.doc(cred.user.uid)
-							.set({
-								username: this.username,
-								userUid: cred.user.uid,
-								email: this.email
-							});
+					.then((cred) => {
+						db.collection("users").doc(cred.user.uid).set({
+							username: this.username,
+							userUid: cred.user.uid,
+							email: this.email,
+						});
 
 						// cred.user.updateProfile({
 						// 	displayName: this.username
 						// });
 						this.$router.push({
 							name: "User",
-							params: { userId: cred.user.uid }
+							params: { userId: cred.user.uid },
 						});
 					})
-					.catch(error => console.log("Error: ", error));
+					.catch((error) => console.log("Error: ", error));
 			}
 		},
 		async checkExists(v) {
 			// remove errors+successes so can start fresh
 			this.errors = "";
 			this.successes = "";
+			const existingValidity = this.valid; // Save the existing state of the validity of the form
+			this.valid = false; // So form can't be submitted before this check is run
 
 			this.$refs.usernameField.loading = true;
 
@@ -151,7 +152,7 @@ export default {
 				.collection("users")
 				.doc(this.username)
 				.get()
-				.then(doc => {
+				.then((doc) => {
 					if (doc.exists) {
 						console.log("exists!");
 						this.errors =
@@ -159,12 +160,13 @@ export default {
 					} else {
 						this.successes = "This username is available!";
 						console.log("doesn't exist!");
+						this.valid = existingValidity;
 					}
 				});
 
 			this.$refs.usernameField.loading = false;
-		}
-	}
+		},
+	},
 };
 </script>
 

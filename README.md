@@ -1,21 +1,9 @@
 # cottagecore
 
-> A Vue.js project
+> Vue and Firebase. Deployed at https://naughty-brattain-84d7d4.netlify.app. Warning: unfinished + buggy.
 
-## Build Setup
+## Interesting features
 
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+-   Login + signup via Firebase
+-   Username-is-available check before signup, also, some Vuetify form rules (email is invalid, password is too short, etc)
+-   Drag+drop planting interface (click on 'My Cottage', then 'Get a seed', then click+drag the chip that appears to one of the 25 'plots'.) The current state of the garden is stored in Firebase.

@@ -36,7 +36,7 @@
 		</v-app-bar>
 		<v-content>
 			<v-container fluid>
-				<router-view />
+				<router-view @login="checkAuthStateChanged" />
 			</v-container>
 		</v-content>
 	</v-app>
@@ -50,27 +50,12 @@ export default {
 	name: "App",
 	data() {
 		return {
-			user: null
+			user: null,
 		};
 	},
 	created() {
-		firebase.auth().onAuthStateChanged(user => {
-			if (user) {
-				db.collection("users")
-					.doc(user.uid)
-					.get()
-					.then(doc => (this.user = doc.data()))
-					.catch(error =>
-						console.log(
-							"Error getting user from current user uid: ",
-							error
-						)
-					);
-				//	this.user = firebase.auth().currentUser;
-			} else {
-				this.user = null;
-			}
-		});
+		this.checkLoggedIn();
+		this.checkAuthStateChanged();
 	},
 	// computed: {
 	// 	currentUser() {
@@ -91,15 +76,43 @@ export default {
 	// 	}
 	// },
 	methods: {
-		logout() {
-			firebase
-				.auth()
-				.signOut()
-				.then(() => {
-					this.$router.push({ name: "Login" });
-				});
-		}
-	}
+		checkLoggedIn() {
+			if (firebase.auth().currentUser) {
+				const userUid = firebase.auth().currentUser.uid;
+				this.getUserFromUid(userUid);
+				return;
+			}
+
+			this.user = null;
+		},
+		checkAuthStateChanged() {
+			const vm = this;
+			firebase.auth().onAuthStateChanged(function (user) {
+				if (user && !vm.user) {
+					vm.getUserFromUid(user.uid);
+				} else {
+					vm.user = null;
+				}
+			});
+		},
+		async logout() {
+			await firebase.auth().signOut();
+			this.checkAuthStateChanged();
+			this.$router.push({ name: "Login" });
+		},
+		getUserFromUid(uid) {
+			db.collection("users")
+				.doc(uid)
+				.get()
+				.then((doc) => (this.user = doc.data()))
+				.catch((error) =>
+					console.log(
+						"Error getting user from current user uid: ",
+						error
+					)
+				);
+		},
+	},
 };
 </script>
 
